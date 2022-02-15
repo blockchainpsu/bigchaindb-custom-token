@@ -42,6 +42,7 @@ function tokenLaunch() {
     })
 }
 
+// Distribution of tokens
 // Sending 2000 tokens to a test user
 const amountToSend = 2000
 const newUser = new BigchainDB.Ed25519Keypair(bip39.mnemonicToSeed('newUserseedPhrase').slice(0, 32))
@@ -71,7 +72,7 @@ function transferTokens() {
                 ],
                 // Metadata (optional)
                 {
-                    transfer_to: 'john',
+                    transfer_to: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
                     tokens_left: tokensLeft
                 }
             )
@@ -85,6 +86,29 @@ function transferTokens() {
             document.body.innerHTML += '<h3>Transfer transaction created</h3>'
             document.body.innerHTML += res.id
         })
+}
+
+// Combination of different BigChainDB transactions
+const bestFriend = new driver.Ed25519Keypair() 
+function combineTokens(transaction1, outputIndex1, transaction2, outputIndex2, totalTokens) {
+    const combineTranfer = BigchainDB.Transaction.makeTransferTransaction(
+        [{
+            tx: transaction1,
+            output_index: outputIndex1
+        }, {
+            tx: transaction2,
+            output_index: outputIndex2
+        }],
+        // Output
+        [BigchainDB.Transaction.makeOutput(
+            BigchainDB.Transaction.makeEd25519Condition(bestFriend.publicKey),(totalTokens).toString())], {
+            transfer_to: 'my best friend'
+        }
+    )
+
+    // Sign the transaction with the newUser key
+    const signedTransfer = BigchainDB.Transaction.signTransaction(combineTranfer, newUser.privateKey)
+    return conn.postTransactionCommit(signedTransfer)
 
 }
 
