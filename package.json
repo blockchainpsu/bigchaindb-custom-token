@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "bigchaindb-driver": "^4.2.2"
+  }
+}
